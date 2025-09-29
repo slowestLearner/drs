@@ -1,2 +1,6 @@
+# unwanted macOS files
 .DS_Store
 **/.DS_Store
+
+# virtual environment
+.venv/
