@@ -111,7 +111,6 @@ holdings_df["mcap_weight_holdings"] = (
     holdings_df["market_cap"] / benchmark_total_cap_holdings
 )
 
-
 # Merge these new weights into the main analytical DataFrame
 analytical_df = pd.merge(
     analytical_df,
@@ -161,12 +160,12 @@ final_drs = analytical_df.groupby(
     fund_investment_total=("fund_investment", "sum"),
 )
 
-# Calculate the final scaled DRS scores. NOTE: changed equations
+# Calculate the final scaled DRS scores. NOTE: changed here
 final_drs["drs_double_style"] = (
-    final_drs["drs_per_dollar_style"] * final_drs["fund_investment_total"]
+    2 * final_drs["drs_per_dollar_style"] * final_drs["fund_investment_total"]
 )
 final_drs["drs_double_holdings"] = (
-    final_drs["drs_per_dollar_holdings"] * final_drs["fund_investment_total"]
+    2 * final_drs["drs_per_dollar_holdings"] * final_drs["fund_investment_total"]
 )
 
 
