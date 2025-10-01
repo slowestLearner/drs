@@ -15,6 +15,7 @@ from typing import Tuple
 
 # Define file paths for easy access
 HOLDINGS_PATH = "../../data/funds/holdings_quarterly_us_de_active_mf_csv/2023.csv"
+# HOLDINGS_PATH = "../../data/funds/holdings_quarterly_us_de_index_mf_csv/2023.csv" # can't really do passive because they don't have styles (yet)
 STYLES_PATH = "../../data/funds/indicative/morningstar_categories_monthly.RDS"
 
 
@@ -248,6 +249,8 @@ if __name__ == "__main__":
         * fund_level_results["drs_per_dollar_holdings"]
         * fund_level_results["fund_investment_total"]
     )
+
+    fund_level_results["yyyymm"] = TARGET_YYYYMM
 
     # 5. Analyze and visualize the final results
     analyze_and_visualize(fund_level_results)
