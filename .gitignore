@@ -8,3 +8,6 @@
 # all storage files files
 **/*.csv
 **/*.RDS
+**/*.parquet
+**/*.xlsx
+**/*.pptx
