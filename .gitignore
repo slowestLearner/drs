@@ -4,3 +4,7 @@
 
 # virtual environment
 .venv/
+
+# all storage files files
+**/*.csv
+**/*.RDS
