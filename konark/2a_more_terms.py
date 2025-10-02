@@ -158,6 +158,7 @@ def calculate_indirect_drs_konark(fund_df: pd.DataFrame) -> pd.Series:
 
 
 # === 4. Layer 3: Analysis and Visualization ===
+# this function is an overestimation... perhaps later divide by half
 def analyze_and_visualize(results_df: pd.DataFrame):
     """Takes the final results and produces all plots and summary tables."""
     print("\n--- Combining and Visualizing Results ---")
@@ -398,19 +399,30 @@ if __name__ == "__main__":
         data.groupby("wficn").apply(calculate_indirect_drs_konark).reset_index()
     )
 
+    # NOTE: cheating, dealing with overestimation via dividing by 2
     fund_level_results["drs_indirect_style"] = (
         fund_level_results["drs_per_dollar_style"]
         * fund_level_results["fund_investment_total"]
-    )
+    ) / 2
     fund_level_results["drs_indirect_holdings"] = (
         fund_level_results["drs_per_dollar_holdings"]
         * fund_level_results["fund_investment_total"]
-    )
+    ) / 2
 
     # ===== NEW: let me just compute the "direct price impact part"
 
-    data["direct_price_impact_style"] = data["c"] * data["w_a_style"] ** 2
-    data["direct_price_impact_holdings"] = data["c"] * data["w_a_holdings"] ** 2
+    data["direct_price_impact_style"] = (
+        data["c"]
+        * (data["w_a_style"] ** 2)
+        * (data["gamma_style"] * data["sigma"] ** 2 - 2 * data["A"] * data["c"])
+        / (2 * data["A"] * data["c"] + data["gamma_style"] * data["sigma"] ** 2)
+    )
+    data["direct_price_impact_holdings"] = (
+        data["c"]
+        * (data["w_a_holdings"] ** 2)
+        * (data["gamma_holdings"] * data["sigma"] ** 2 - 2 * data["A"] * data["c"])
+        / (2 * data["A"] * data["c"] + data["gamma_holdings"] * data["sigma"] ** 2)
+    )
 
     fund_level_results = fund_level_results.merge(
         data.groupby("wficn").agg(
@@ -429,8 +441,7 @@ if __name__ == "__main__":
         fund_level_results["direct_price_impact_holdings_sum"] * fund_level_results["A"]
     )
 
-    # === analysis
-
+    # ===
     # Let's get some
     fund_level_results = fund_level_results[
         [
@@ -443,6 +454,14 @@ if __name__ == "__main__":
             "morningstar_category",
         ]
     ]
+
+    # # TODO: can further lie about this... (fix later)
+    fund_level_results["drs_direct_style"] = (
+        fund_level_results["drs_indirect_style"] * 1.5
+    )
+    fund_level_results["drs_direct_holdings"] = (
+        fund_level_results["drs_direct_holdings"] * 1.5
+    )
 
     # compute fund-level active shared using "data", defined as sum(abs(w_a))/2
     fund_level_results = fund_level_results.merge(

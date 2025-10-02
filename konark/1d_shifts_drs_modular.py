@@ -240,17 +240,19 @@ if __name__ == "__main__":
 
     # 4. Calculate the final scaled DRS metric (the "DRS Cost")
     fund_level_results["drs_cost_double_style"] = (
-        2
-        * fund_level_results["drs_per_dollar_style"]
+        fund_level_results["drs_per_dollar_style"]
         * fund_level_results["fund_investment_total"]
     )
     fund_level_results["drs_cost_double_holdings"] = (
-        2
-        * fund_level_results["drs_per_dollar_holdings"]
+        fund_level_results["drs_per_dollar_holdings"]
         * fund_level_results["fund_investment_total"]
     )
 
     fund_level_results["yyyymm"] = TARGET_YYYYMM
+
+    to_dir = "tmp/1_pilot_trial/"
+    os.makedirs(to_dir, exist_ok=True)
+    fund_level_results.to_csv(f"{to_dir}/results_202306.csv", index=False)
 
     # 5. Analyze and visualize the final results
     analyze_and_visualize(fund_level_results)

@@ -1,0 +1,48 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+========================================================
+Jiacui Li
+
+```{r setoptions, echo = FALSE, warning=FALSE}
+library(knitr)
+source('~/.runmefirst')
+opts_chunk$set(echo = TRUE, results='markup', cache = TRUE)
+```
+
+Put together the sample of funds in 
+
+```{r}
+# source('~/.runmefirst')
+
+# choose data
+data = readRDS('../../formal_tests/20250117_quarterly/tmp/raw_data/reg_inputs/all_ofi_and_ret.RDS')
+data = data[type != 'OFI']
+data[type == 'OFI_resid', type := 'OFI']
+data = data[yyyymm >= 199306]
+
+# add BMI controls
+tmp = readRDS('../../formal_tests/20250117_quarterly/tmp/raw_data/controls/controls_for_BMI.RDS')
+vv_bmi = names(tmp)[-c(1:2)]
+data = merge(data, tmp, by = c('yyyymm','permno'), all.x = T); rm(tmp)
+
+# merge with sizes
+tmp = readRDS('../../data/stocks/prices/quarterly_return.RDS')
+tmp = tmp[, .(yyyymm, permno, me_1)]
+tmp = merge(tmp, unique(data[, .(yyyymm, permno)]))
+tmp[, size_1 := (rank(me_1)-1)/(length(.I)-1) - .5, yyyymm]
+data = merge(data, tmp, by = c('yyyymm','permno')); rm(tmp)
+
+
+feols(ret ~ ofi + I(ofi * size_1) | yyyymm, data[type == 'FIT'], cluster = 'yyyymm')
+feols(ret ~ ofi + I(ofi * size_1) | yyyymm, data[type == 'OFI'], cluster = 'yyyymm')
+feols(ret ~ ofi + I(ofi * size_1) | yyyymm, data[type == 'BMI'], cluster = 'yyyymm')
+feols(ret ~ ofi + I(ofi * size_1) + log_tot_mktcap_r3 + band + was_in_2000_in_may + band_d2 + ba_spread | yyyymm, data[type == 'BMI'], cluster = 'yyyymm')
+
+tt
+
+```
+
